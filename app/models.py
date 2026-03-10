@@ -59,3 +59,24 @@ class ChurnScore(Base):
     customer_id = Column(Integer, ForeignKey("customers.id"), nullable=False, unique=True)
     risk_level = Column(Enum(ChurnRiskLevel), default=ChurnRiskLevel.LOW)
     score = Column(Float, default=0.0)
+
+
+class Campaign(Base):
+    __tablename__ = "campaigns"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255), nullable=False)
+    description = Column(Text)
+    target_risk = Column(Enum(ChurnRiskLevel))
+    status = Column(String(50), default="DRAFT")
+    created_by = Column(Integer, ForeignKey("users.id"))
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class CampaignCustomer(Base):
+    __tablename__ = "campaign_customers"
+    id = Column(Integer, primary_key=True, index=True)
+    campaign_id = Column(Integer, ForeignKey("campaigns.id"), nullable=False)
+    customer_id = Column(Integer, ForeignKey("customers.id"), nullable=False)
+    sent_at = Column(DateTime)
+    opened_at = Column(DateTime)
+    converted = Column(Boolean, default=False)
