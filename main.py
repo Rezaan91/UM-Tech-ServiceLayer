@@ -3,18 +3,22 @@ UM Tech ServiceLayer - Customer Retention & Churn Risk API
 Main application entry point
 """
 
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from alembic.config import Config
 from alembic import command
 
 from app.routers import auth, customers, transactions, feedback, churn, campaigns
-from app.database import engine, Base
+
 
 def run_migrations():
-    """Run Alembic migrations on startup — safe for production."""
-    alembic_cfg = Config("alembic.ini")
+    """Run Alembic migrations on startup — resolves paths correctly inside Docker."""
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    alembic_cfg = Config(os.path.join(base_dir, "alembic.ini"))
+    alembic_cfg.set_main_option("script_location", os.path.join(base_dir, "migrations"))
     command.upgrade(alembic_cfg, "head")
+
 
 app = FastAPI(
     title="UM Tech ServiceLayer",
@@ -24,9 +28,11 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
+
 @app.on_event("startup")
 def startup_event():
     run_migrations()
+
 
 # CORS
 app.add_middleware(
