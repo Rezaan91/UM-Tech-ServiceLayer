@@ -1,3 +1,5 @@
-git add .
-git commit -m "Trigger pipeline"
-git push origin main
+on:
+  push:
+    branches:
+      - main
+      - develop
