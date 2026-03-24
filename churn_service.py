@@ -9,7 +9,7 @@ Rules:
 Score (0.0 – 1.0) is a weighted composite used for ranking.
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Tuple
 from sqlalchemy.orm import Session
 from sqlalchemy import func
@@ -125,7 +125,7 @@ def upsert_churn_score(customer_id: int, db: Session) -> ChurnScore:
 
 def recalculate_all(db: Session) -> int:
     """Recalculate churn scores for every active customer. Returns count updated."""
-    customers = db.query(Customer).filter(Customer.is_active == True).all()
+    customers = db.query(Customer).filter(Customer.is_active).all()
     for c in customers:
         upsert_churn_score(c.id, db)
     return len(customers)

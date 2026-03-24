@@ -29,7 +29,7 @@ def list_customers(
     _:       User    = Depends(get_current_user),
 ):
     """List all active customers with optional segment filter."""
-    q = db.query(Customer).filter(Customer.is_active == True)
+    q = db.query(Customer).filter(Customer.is_active)
     if segment:
         q = q.filter(Customer.segment == segment)
     return q.offset(skip).limit(limit).all()
@@ -66,7 +66,7 @@ def at_risk_customers(
     q = (
         db.query(Customer, ChurnScore)
         .join(ChurnScore, ChurnScore.customer_id == Customer.id)
-        .filter(Customer.is_active == True)
+        .filter(Customer.is_active)
     )
 
     if risk_level:
