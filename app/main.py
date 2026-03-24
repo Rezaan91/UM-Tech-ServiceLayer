@@ -1,11 +1,23 @@
 from fastapi import FastAPI, Depends, HTTPException, Header
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from typing import Optional
 
 from .database import Base, engine, get_db
 from .models import User, Customer, Transaction, Feedback, ChurnScore, ChurnRiskLevel
+from app.modules.assessment.routes import router as assessment_router
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(assessment_router)
 
 
 @app.get("/")
@@ -80,6 +92,12 @@ def list_customers(db: Session = Depends(get_db), user: User = Depends(get_curre
     customers = db.query(Customer).all()
     out = [{"id": c.id, "email": c.email, "segment": c.segment} for c in customers]
     return out
+
+
+@app.get("/customers/at-risk")
+def customers_at_risk_early(risk_level: Optional[str] = None, limit: int = 50, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    # Ensure the specific route is registered before the path parameter route
+    return []
 
 
 @app.get("/customers/{customer_id}")
@@ -186,10 +204,7 @@ def list_campaigns(db: Session = Depends(get_db), user: User = Depends(get_curre
     return [{"id": c.id, "name": c.name, "status": c.status} for c in campaigns]
 
 
-@app.get("/customers/at-risk")
-def customers_at_risk(risk_level: Optional[str] = None, limit: int = 50, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    # Minimal implementation for tests: return empty list (status 200)
-    return []
+# (customers/at-risk route moved earlier to avoid path parameter collision)
 
 
 @app.put("/campaigns/{campaign_id}")

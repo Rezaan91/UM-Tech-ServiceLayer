@@ -1,9 +1,8 @@
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, ForeignKey, Text, Enum
-from sqlalchemy.orm import relationship
 import enum
 
-from .database import Base
+from app.core.database import Base
 
 
 class ChurnRiskLevel(str, enum.Enum):
@@ -80,3 +79,7 @@ class CampaignCustomer(Base):
     sent_at = Column(DateTime)
     opened_at = Column(DateTime)
     converted = Column(Boolean, default=False)
+
+
+from .assessment import Assessment
+
